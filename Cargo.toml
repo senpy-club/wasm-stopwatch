@@ -1,19 +1,21 @@
 [package]
 name = "wasm-stopwatch"
-version = "0.1.0"
+version = "0.2.0"
 authors = ["Nathan Stoddard <nstoddard@users.noreply.github.com>"]
-description = "A simple stopwatch for WebAssembly."
+description = "A simple stopwatch for games and similar applications. Works on desktop and wasm."
 license = "MIT"
 readme = "README.md"
 repository = "https://github.com/nstoddard/wasm-stopwatch"
 edition = "2018"
 
 [dependencies]
-log = "0.4.6"
+log = "0.4.11"
 
-[dependencies.web-sys]
-version = "0.3.8"
-features = [
+[target.'cfg(not(target_arch = "wasm32"))'.dependencies]
+time = "0.2.22"
+
+[target.'cfg(target_arch = "wasm32")'.dependencies]
+web-sys = { version = "0.3.45", features = [
   "Window",
   "Performance",
-]
+] }

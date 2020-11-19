@@ -1,10 +1,10 @@
-//! A simple stopwatch for WebAssembly.
+//! A simple stopwatch for games and similar applications.
 
 pub mod fps_logger;
 
+#[cfg(target_arch = "wasm32")]
 use web_sys::*;
 
-/// A stopwatch which tracks time in seconds, using `performance.now()`.
 #[derive(Clone)]
 pub struct Stopwatch {
     start_time: f64,
@@ -12,6 +12,7 @@ pub struct Stopwatch {
     speed: f64,
 }
 
+/// A stopwatch which tracks time in seconds.
 impl Stopwatch {
     /// Creates a new stopwatch with the current time set to 0.
     pub fn new() -> Self {
@@ -81,6 +82,18 @@ impl Stopwatch {
         }
     }
 
+    /// Sleeps until this stopwatch reaches the given time. May sleep for slightly longer than
+    /// requested (the same behavior as `std::thread::sleep`), so in practice most games should
+    /// use vsync or similar mechanisms instead of using this to maintain a certain frame rate.
+    ///
+    /// Panics if the stopwatch is paused.
+    #[cfg(not(target_arch = "wasm32"))]
+    pub fn sleep_until(&self, time: f64) {
+        assert!(!self.paused());
+        let time_diff = time / self.speed - self.get_time();
+        Self::sleep(time_diff);
+    }
+
     fn get_end_time(&self) -> f64 {
         match self.paused_at {
             None => Self::get_raw_time(),
@@ -88,7 +101,26 @@ impl Stopwatch {
         }
     }
 
+    #[cfg(target_arch = "wasm32")]
     fn get_raw_time() -> f64 {
         window().unwrap().performance().unwrap().now() / 1000.0
+    }
+
+    #[cfg(not(target_arch = "wasm32"))]
+    fn get_raw_time() -> f64 {
+        (time::OffsetDateTime::now_utc() - time::OffsetDateTime::unix_epoch()).as_seconds_f64()
+    }
+
+    #[cfg(not(target_arch = "wasm32"))]
+    fn sleep(time_diff: f64) {
+        if time_diff > 0.0 {
+            std::thread::sleep(std::time::Duration::from_secs_f64(time_diff));
+        }
+    }
+}
+
+impl Default for Stopwatch {
+    fn default() -> Self {
+        Self::new()
     }
 }
