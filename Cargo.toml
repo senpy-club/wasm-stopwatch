@@ -9,13 +9,13 @@ repository = "https://github.com/nstoddard/wasm-stopwatch"
 edition = "2018"
 
 [dependencies]
-log = "0.4.11"
+log = "0.4.14"
 
 [target.'cfg(not(target_arch = "wasm32"))'.dependencies]
-time = "0.2.22"
+time = "0.3.3"
 
 [target.'cfg(target_arch = "wasm32")'.dependencies]
-web-sys = { version = "0.3.45", features = [
+web-sys = { version = "0.3.55", features = [
   "Window",
   "Performance",
 ] }

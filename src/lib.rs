@@ -108,7 +108,7 @@ impl Stopwatch {
 
     #[cfg(not(target_arch = "wasm32"))]
     fn get_raw_time() -> f64 {
-        (time::OffsetDateTime::now_utc() - time::OffsetDateTime::unix_epoch()).as_seconds_f64()
+        (time::OffsetDateTime::now_utc() - time::OffsetDateTime::UNIX_EPOCH).as_seconds_f64()
     }
 
     #[cfg(not(target_arch = "wasm32"))]
